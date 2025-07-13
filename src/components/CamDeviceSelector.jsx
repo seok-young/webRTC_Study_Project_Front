@@ -15,15 +15,15 @@ export default function CamDeviceSelector({
         useEffect(() => {
              return () => {
                 if(mediaStreamRef.current) {
-                mediaPlayerRef.current.getTracks().forEach(track => track.stop());
-                mediaPlayerRef.current = null;
+                mediaStreamRef.current.getTracks().forEach(track => track.stop());
+                mediaStreamRef.current = null;
             }
             }
         },[]);
 
         useEffect(() => {
             if(mediaStreamRef.current) {
-                mediaPlayerRef.current.getTracks().forEach(track => track.stop());
+                mediaStreamRef.current.getTracks().forEach(track => track.stop());
             }
 
             const constraints = {
@@ -53,8 +53,8 @@ export default function CamDeviceSelector({
         const enumerateDevices =  () => {
             if(!disabled) {
                 navigator.mediaDevices.enumerateDevices()
-                    .then(deviceInofo => {
-                        const cams = deviceInofo.filter(
+                    .then(deviceInofos => {
+                        const cams = deviceInofos.filter(
                             deviceInfo => deviceInfo.kind === 'videoinput' && deviceInfo.deviceId !== 'default'
                         );
                         setDevices(cams);

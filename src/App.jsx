@@ -8,7 +8,7 @@ import { useStore } from './store'
 
 function App() {
     const { roomStore } = useStore();
-    const {camDisabled, selectedCamId} = roomStore;
+    const {camDisabled, selectedCamId, micDisabled, selectedMicId} = roomStore;
 
     const handleChangeCamDisabled = (disabled) => {
         roomStore.setCamDisabled(disabled);
@@ -18,6 +18,13 @@ function App() {
         roomStore.setSelectedCamId(deviceId);
     }
 
+    const handleChangeMicDisabled = (disabled) => {
+        roomStore.setMicDisabled(disabled);
+    }
+
+    const handleChangeSelectedMicId = (deviceId) => {
+        roomStore.setSelectedMicId(deviceId);
+    }
 
     return (
         <Stack direction={{xs: 'column', md: 'row'}} spacing ={2}
@@ -29,10 +36,18 @@ function App() {
             </Stack>
             <Stack direction='column' spacing ={1}
                 sx={{justifyContent:'center', alignItems:'stretch', width:'400px'}}>
+                
+                
                 <CamDeviceSelector disabled={camDisabled} deviceId={selectedCamId}
                                    onDisabledChanged={handleChangeCamDisabled}
-                                   onDeviceIdChanged={handleChangeSelectedCamId}/>
-                <MicDeviceSelector />
+                                   onDeviceIdChanged={handleChangeSelectedCamId}
+                                   />
+                
+                
+                <MicDeviceSelector disabled={micDisabled} deviceId={selectedMicId}
+                                   onDisabledChanged={handleChangeMicDisabled}
+                                   onDeviceIdChanged={handleChangeSelectedMicId}
+                                   />
                 <RoomConnector />
             </Stack>
         </Stack>
