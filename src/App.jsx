@@ -5,10 +5,20 @@ import CamDeviceSelector from './components/CamDeviceSelector'
 import MicDeviceSelector from './components/MicDeviceSelector'
 import { RoomConnector } from './components/RoomConnector'
 import { useStore } from './store'
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 function App() {
     const { roomStore } = useStore();
-    const {camDisabled, selectedCamId, micDisabled, selectedMicId} = roomStore;
+    const {camDisabled, selectedCamId, micDisabled, selectedMicId, isJoining, isJoinSuccess} = roomStore;
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if(isJoinSuccess){
+            navigate('/room');
+        }
+    }, [isJoinSuccess]);
+
 
     const handleChangeCamDisabled = (disabled) => {
         roomStore.setCamDisabled(disabled);
@@ -24,6 +34,10 @@ function App() {
 
     const handleChangeSelectedMicId = (deviceId) => {
         roomStore.setSelectedMicId(deviceId);
+    }
+
+    const handleJoin = (roomId) => {
+        roomStore.join(roomId);
     }
 
     return (
@@ -48,7 +62,7 @@ function App() {
                                    onDisabledChanged={handleChangeMicDisabled}
                                    onDeviceIdChanged={handleChangeSelectedMicId}
                                    />
-                <RoomConnector joining={false} onJoin={(roomId) => console.log("joining : ",roomId)}/>
+                <RoomConnector joining={isJoining} onJoin={handleJoin}/>
             </Stack>
         </Stack>
     )
