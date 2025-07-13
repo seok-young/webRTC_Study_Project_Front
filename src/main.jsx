@@ -1,0 +1,26 @@
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+import Room from './Room.jsx'
+import { createBrowserRouter, RouterProvider} from 'react-router-dom'
+import { rootStore, StoreProvider } from './strore.js'
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <App />
+  },
+  {
+    path: '/room',
+    element: <Room />
+  }
+])
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <StoreProvider value={rootStore}>
+      <RouterProvider router={router} future={{v7_startTransition: true, v7_relativeSplatPath: true}} />
+    </StoreProvider>
+  </StrictMode>,
+)
