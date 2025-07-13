@@ -48,7 +48,7 @@ function App() {
                                    onDisabledChanged={handleChangeMicDisabled}
                                    onDeviceIdChanged={handleChangeSelectedMicId}
                                    />
-                <RoomConnector />
+                <RoomConnector joining={false} onJoin={(roomId) => console.log("joining : ",roomId)}/>
             </Stack>
         </Stack>
     )
