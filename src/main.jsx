@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import Room from './Room.jsx'
 import { createBrowserRouter, RouterProvider} from 'react-router-dom'
-import { rootStore, StoreProvider } from './strore.js'
+import { rootStore, StoreProvider } from './store.js'
 
 const router = createBrowserRouter([
   {

@@ -4,8 +4,21 @@ import { Mic } from '@mui/icons-material'
 import CamDeviceSelector from './components/CamDeviceSelector'
 import MicDeviceSelector from './components/MicDeviceSelector'
 import { RoomConnector } from './components/RoomConnector'
+import { useStore } from './store'
 
 function App() {
+    const { roomStore } = useStore();
+    const {camDisabled, selectedCamId} = roomStore;
+
+    const handleChangeCamDisabled = (disabled) => {
+        roomStore.setCamDisabled(disabled);
+    }
+
+    const handleChangeSelectedCamId = (deviceId) => {
+        roomStore.setSelectedCamId(deviceId);
+    }
+
+
     return (
         <Stack direction={{xs: 'column', md: 'row'}} spacing ={2}
             sx={{justifyContetn:'center', alignItems:'center', minHeight: '100vh'}}>
@@ -16,7 +29,9 @@ function App() {
             </Stack>
             <Stack direction='column' spacing ={1}
                 sx={{justifyContent:'center', alignItems:'stretch', width:'400px'}}>
-                <CamDeviceSelector />
+                <CamDeviceSelector disabled={camDisabled} deviceId={selectedCamId}
+                                   onDisabledChanged={handleChangeCamDisabled}
+                                   onDeviceIdChanged={handleChangeSelectedCamId}/>
                 <MicDeviceSelector />
                 <RoomConnector />
             </Stack>
