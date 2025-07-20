@@ -1,6 +1,8 @@
 import { makeAutoObservable, set } from 'mobx'
 import { WebMediaClient } from '../lib/WebMediaClient';
 import { WebMediaPublisher } from '../lib/WebMediaPublisher';
+import { WebMediaSubscriber } from '../lib/WebMediaSubscriber';
+
 
 const Status= {
     None :'none',
@@ -27,6 +29,9 @@ export class RoomStore {
         this.publishStatus = Status.None;
         this.publisher = null;
         this.publishStream = null;
+        this.subscribeStatus = Status.None;
+        this.subscriber = null;
+        this.subscribeStream = null;
 
         makeAutoObservable(this, {});
     }
@@ -148,9 +153,49 @@ export class RoomStore {
             }
     }
 
+    *subscribe() {
+        if(this.client && this.isJoinSuccess && this.anotherUser && this.anotherUser.published
+            && (this.subscribeStatus !== Status.Ing)) {
+                try{
+                    this.subscribeStatus = Status.Ing;
+
+                    if(this.subscribeStream) {
+                        this.subscribeStream.getTracks.forEach(track => track.stop());
+                    }
+
+                    if(this.subscriber) {
+                        this.subscriber.close();
+                    }
+
+                    this.subscriber = WebMediaSubscriber(this.apiUrl, this.streamUrl);
+                    const session = yield this.subscriber.subscribe(this.roomId, this.anotherUser.userId);
+                    console.log("Subscribe 성공", session);
+                    this.subscribeStream = this.subscriber.stream;
+
+                    this.subscribeStatus =Status.Success;
+                } catch(error){
+                    console.log("Subscribe  실패", error);
+
+                    if(this.subscribeStream) {
+                        this.subscribeStream.getTracks().forEach(track => track.stop());
+                    }
+                    if(this.subscriber){
+                        this.subscriber.close();
+                    }
+
+                    this.subscriber = null;
+                    this.subscribeStream = null;
+                    this.subscribeStatus = Status.Error;
+                }
+            }
+        
+    }
+
     _onMessage = (container) => {
 
     }
+
+    
 
     *_sendJoinMessage(){
         const request = {
