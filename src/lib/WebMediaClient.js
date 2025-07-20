@@ -50,7 +50,7 @@ export class WebMediaClient {
             } else {
                 reject(new Error("접속 중이 아닙니다."));
             }
-        })
+        });
     }
     
     close = () => {
