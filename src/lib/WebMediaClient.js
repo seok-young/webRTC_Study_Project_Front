@@ -23,9 +23,42 @@ export class WebMediaClient {
             this.client.onclose = this._onClose;
             this.client.onerror = this._onError;
             this.client.onmessage = this._onMessage;
-        })
-        
+        })       
+    }
 
+    sendMessage = (message, type, isTransaction) => {
+        return new Promise((resolve, reject) => {
+            if(this.connected) {
+                const messageId = String(this._nextMessageId++);
+                const request = {
+                    roomId: this.roomId,
+                    from: 'client',
+                    to: 'webmedia-ws',
+                    type: type,
+                    messageId: messageId,
+                    message: message,
+                };
+
+                if(isTransaction) {
+                    this._addTransaction(messageId, resolve, reject);
+                }
+
+                this.client.send(JSON.stringify(request));
+                if(!isTransaction){
+                    resolve();
+                }
+            } else {
+                reject(new Error("접속 중이 아닙니다."));
+            }
+        })
+    }
+    
+    close = () => {
+        this.connected = false;
+        if(this.client) {
+            this.client.close();
+            this.client = null;
+        }
     }
 
     _onOpen = (event) => {
@@ -39,14 +72,23 @@ export class WebMediaClient {
     }
 
     _onClose = (event) => {
-
+        console.log("WebSocket onClose", event);
     }
 
     _onError = (event) => {
-
+        console.log("WebSocket onError", event);
     }
 
     _onMessage = (event) => {
+        if(event.data) {
+            const container = JSON.parse(event.data);
+            const transaction = this._getTransaction(container.messageId);
+            if(transaction) {
+                transaction.resolve(container);
+            } else {
+                this._messageCallback(container);
+            }
+        }
 
     }
 
