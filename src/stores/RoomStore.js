@@ -39,7 +39,7 @@ export class RoomStore {
     }
 
     setSelectedMicId(deviceId) {
-        this.selecteMicId = deviceId;
+        this.selectedMicId = deviceId;
     }
 
     // getter 함수사용해서 status를 외부에 노출 시킴
