@@ -3,8 +3,24 @@ import { IconButton, Stack } from '@mui/material'
 import VolumeOffIcon from '@mui/icons-material/VolumeOff'
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useStore } from './store.js'
+
 
 function Room() {
+    const navigate =useNavigate();
+    const {roomStore} = useStore();
+    const {isJoinSuccess} = roomStore;
+
+    useEffect(() => {
+        if(isJoinSuccess) {
+            roomStore.publish();
+        }else{
+            navigate('/');
+        }
+    },[isJoinSuccess]);
+
     return (
         <div style={{position:'relative', width:'100%', height:'100vh'}}>
             <video autoPlay muted

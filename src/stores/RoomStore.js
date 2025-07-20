@@ -1,5 +1,6 @@
 import { makeAutoObservable, set } from 'mobx'
 import { WebMediaClient } from '../lib/WebMediaClient';
+import { WebMediaPublisher } from '../lib/WebMediaPublisher';
 
 const Status= {
     None :'none',
@@ -22,6 +23,10 @@ export class RoomStore {
         this.streamUrl = null;
         this.user = null;
         this.anotherUser = null;
+
+        this.publishStatus = Status.None;
+        this.publisher = null;
+        this.publishStream = null;
 
         makeAutoObservable(this, {});
     }
@@ -95,6 +100,54 @@ export class RoomStore {
         } 
     }
 
+    *publish(){
+        if(this.client && this.isJoinSuccess && this.user
+            && (this.publishStatus !== Status.Ing) && (this.publishStatus !== Status.Success)) {
+                try {
+                    this.publishStatus = Status.Ing;
+
+                    if(this.publishStream) {
+                        this.publishStream.getTracks().forEach(track => track.stop());
+                    }
+
+                    if(this.publisher) { 
+                        this.publisher.close();
+                    }
+
+                    const constraints = {
+                        video: {
+                            deviceId: this.selectedCamId,
+                        },
+                        audio: {
+                            deviceId: this.selectedMicId,
+                            echoCancellation: false,
+                            noiseSuppression: true,
+                        }
+                    };
+                    this.publishStream = yield navigator.mediaDevices.getUserMedia(constraints);
+                    this.publisher = WebMediaPublisher(this.apiUrl, this.streamUrl);
+                    const session = yield this.publisher.publish(this.publishStream, this.roomId, this.user.userId);
+                    console.log("Publish 성공", session);
+
+                    yield this._reportPublishedChange(true);
+                    this.publishStatus = Status.Success;
+                } catch(error){
+                    console.log("Publish 실패", error);
+
+                    if(this.publishStream) {
+                        this.publishStream.getTracks().forEach(track => track.stop());
+                    }
+                    if(this.publisher){
+                        this.publisher.close();
+                    }
+
+                    this.publisher = null;
+                    this.publishStream = null;
+                    this.publishStatus = Status.Error;
+                }
+            }
+    }
+
     _onMessage = (container) => {
 
     }
@@ -113,5 +166,13 @@ export class RoomStore {
             throw new Error('응답코드 {알 수 없는 응답}');
         }
     } 
+
+    *_reportPublishedChange(published) {
+        const request = {
+            published
+        };
+
+        yield this.client.sendMessage(request, 'UserPublishedChangeReport', false);
+    }
     
 }
