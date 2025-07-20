@@ -150,6 +150,10 @@ export class RoomStore {
                     this.publishStream = null;
                     this.publishStatus = Status.Error;
                 }
+
+                if(this.anotherUser && this.anotherUser.published) {
+                    this.subscribe();
+                }
             }
     }
 
@@ -192,10 +196,39 @@ export class RoomStore {
     }
 
     _onMessage = (container) => {
+        console.log("메세지 수신", container);
 
-    }
+        const {type, message} = container;
+        if(type === 'UserJoinedEvent'){
+            const {user} = message;
 
-    
+            this.anotherUser = user;
+            if(this.anotherUser.published) {
+                this.subscribe();
+            }
+        } else if(type === 'UserStateChangeEvent') {
+            const {userId, published} = message;
+
+            if(this.anotherUser && (this.anotherUser.userId === userId)) {
+                this.anotherUser = Object.assign({}, this.anotherUser, {published});
+
+                if(published){
+                    this.subscribe();
+                } else {
+                    if(this.subscribeStream){
+                        this.subscribeStream.getTracks().forEach(track => track.stop());
+                    }
+                    if(this.subscriber){
+                        this.subscriber.close();
+                    }
+
+                    this.subscriber = null;
+                    this.subscribeStream = null;
+                    this.subscribeStatus = Status.None;
+                }
+            }
+        }
+    }    
 
     *_sendJoinMessage(){
         const request = {
