@@ -1,16 +1,17 @@
+
 const TransactionTimeout = 30 * 1000;
 
 const DefaultMessageCallback = (container) => {}
-
 
 export class WebMediaClient {
     constructor(messageCallback = DefaultMessageCallback) {
         this._nextMessageId = 0;
         this._transactionMap = {};
         this._messageCallback = messageCallback;
+
         this.roomId = null;
-        this.connected =false;
-        this.client =null;
+        this.connected = false;
+        this.client = null;
     }
 
     connect = (websocketUrl, roomId) => {
@@ -23,7 +24,7 @@ export class WebMediaClient {
             this.client.onclose = this._onClose;
             this.client.onerror = this._onError;
             this.client.onmessage = this._onMessage;
-        })       
+        });
     }
 
     sendMessage = (message, type, isTransaction) => {
@@ -42,17 +43,16 @@ export class WebMediaClient {
                 if(isTransaction) {
                     this._addTransaction(messageId, resolve, reject);
                 }
-
                 this.client.send(JSON.stringify(request));
-                if(!isTransaction){
+                if(!isTransaction) {
                     resolve();
                 }
             } else {
-                reject(new Error("접속 중이 아닙니다."));
+                reject(new Error("접속 중이 아닙니다"));
             }
         });
     }
-    
+
     close = () => {
         this.connected = false;
         if(this.client) {
@@ -67,8 +67,6 @@ export class WebMediaClient {
             this.connected = true;
             transaction.resolve();
         }
-
-
     }
 
     _onClose = (event) => {
@@ -89,7 +87,6 @@ export class WebMediaClient {
                 this._messageCallback(container);
             }
         }
-
     }
 
     _addTransaction = (key, resolve, reject) => {
