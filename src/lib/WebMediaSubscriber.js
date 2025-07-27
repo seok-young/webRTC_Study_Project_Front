@@ -55,10 +55,13 @@ export function WebMediaSubscriber(apiUrl, streamUrl) {
         const state = self.pc.connectionState;
         console.log("RTCPeerConnection state changed ", state);
     }
+
+    // 상재방 미디어트랙 수신했을 때 콜백 정의
     self.pc.ontrack = (event) => {
         console.log("RTCPeerConnection onTrack", event);
 
         if(event.track) {
+            // 상대방의 미디어스트림 저장
             self.stream.addTrack(event.track);
         }
     }

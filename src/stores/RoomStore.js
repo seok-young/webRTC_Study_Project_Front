@@ -28,10 +28,13 @@ export class RoomStore {
         this.publishStatus = Status.None;
         this.publisher = null;
         this.publishStream = null;
+
         this.subscribeStatus = Status.None;
         this.subscriber = null;
         this.subscribeStream = null;
 
+        // 클래스의 모든 상태, 메서드를 MobX에서 자동 추적할 수 있게 함
+        // {}는 특정 필드 제외 혹은 명시적 설정 가능, 현재는 생략
         makeAutoObservable(this, {});
     }
 
@@ -107,6 +110,7 @@ export class RoomStore {
             try {
                 this.publishStatus = Status.Ing;
 
+                // 초기화
                 if(this.publishStream) {
                     this.publishStream.getTracks().forEach(track => track.stop());
                 }
@@ -127,6 +131,7 @@ export class RoomStore {
                 
                 this.publishStream = yield navigator.mediaDevices.getUserMedia(constraints);
                 this.publisher = WebMediaPublisher(this.apiUrl, this.streamUrl);
+                // publisher 로컬 변수 생성 안되어 있고, 클래스 인스턴스 변수(this.publisher) 접근해야 하니까
                 const session = yield this.publisher.publish(this.publishStream, this.roomId, this.user.userId);
                 console.log("Publish 성공", session);
 
@@ -154,11 +159,12 @@ export class RoomStore {
     }
 
     *subscribe() {
+        // 이미 구독했어도 조건이 바뀌면(상대방 재접속) 다시 구독
         if(this.client && this.isJoinSuccess && this.anotherUser && this.anotherUser.published &&
             (this.subscribeStatus !== Status.Ing)) {
             try {
                 this.subscribeStatus = Status.Ing;
-
+                // 초기화
                 if(this.subscribeStream) {
                     this.subscribeStream.getTracks().forEach(track => track.stop());
                 }
@@ -225,6 +231,7 @@ export class RoomStore {
         this.subscribeStream = null;
     }
 
+    // webMedia Client 생성 시 파라미터로
     _onMessage = (container) => {
         console.log("메세지 수신", container);
 

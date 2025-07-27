@@ -20,10 +20,12 @@ function Room() {
         if(remoteVideoRef.current) {
             remoteVideoRef.current.addEventListener('volumechange', onVolumeChange);
         }
+        // volumechange 발생 시 onVolumeChange 실행
 
         return () => {
+            // 언마운트 -> clean-up
             if(remoteVideoRef.current) {
-                remoteVideoRef.current.removeEventListener('volumechange', onVolumnChange);
+                remoteVideoRef.current.removeEventListener('volumechange', onVolumeChange);
             }
         }
     }, []);
@@ -36,7 +38,10 @@ function Room() {
         }
     }, [isJoinSuccess]);
 
+    // 내꺼
     useVideoStream(localVideoRef, publishStream);
+
+    // 상대방꺼
     useVideoStream(remoteVideoRef, subscribeStream);
 
     const onVolumeChange = (event) => {

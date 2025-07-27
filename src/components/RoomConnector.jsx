@@ -16,6 +16,7 @@ export function RoomConnector({joining, onJoin}) {
         const newName = event.target.value;
 
         setRoomId(newName);
+        // 유효하지 않으면 true, 유효하면 false
         setRoomIdInvalid(!validateRoomId(newName));
     }
 

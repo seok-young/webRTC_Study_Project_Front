@@ -80,7 +80,6 @@ export default function CamDeviceSelector({
     const configureAudioNode =() => {
         if(audioContextRef.current && mediaStreamRef.current) {
             const audioContext = audioContextRef.current;
-
             const sourceNode = audioContext.createMediaStreamSource(mediaStreamRef.current);
             const analyserNode = audioContext.createAnalyser();
             const destNode = audioContext.createMediaStreamDestination();
@@ -96,6 +95,11 @@ export default function CamDeviceSelector({
         }
     }
     const startAnimation = () => {
+        /* 브라우저 보안 정책과 사용자 경험측면 고려했을 때, 
+        사용자 인터랙션(onClick={startAnimation}) 후에 audioContext 생성이 적합
+        브라우저의 자동 음성/소리 재생 차단 정책 회피할 수 있음
+        리소스를 아끼고, 필요할 때만 AudioContext를 만들기 위함
+        */
         if(!audioContextRef.current) {
             audioContextRef.current = new AudioContext();
     }
@@ -126,6 +130,7 @@ export default function CamDeviceSelector({
             if(analyserNodeRef.current) {
                 const bufferLen = analyserNodeRef.current.frequencyBinCount;
                 const buffer = new Uint8Array(bufferLen);
+                // 소리의 주파수별 세기를 숫자로 뽑아오는 함수
                 analyserNodeRef.current.getByteFrequencyData(buffer);
 
                 drawAudioData(buffer, bufferLen);
