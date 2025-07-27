@@ -87,8 +87,7 @@ export default function CamDeviceSelector({
                             {device.label}
                         </MenuItem>
                     ))}
-                </Select>
-          
+                </Select>          
             </FormControl>
         </Stack>
     );

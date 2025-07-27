@@ -3,7 +3,7 @@ import { set } from "mobx";
 import { use, useEffect, useRef, useState } from "react";
 
 
-export default function CamDeviceSelector({
+export function MicDeviceSelector({
     disabled, deviceId,
     onDisabledChanged, onDeviceIdChanged
 }) {
